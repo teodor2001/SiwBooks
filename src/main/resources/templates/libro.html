@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Libro</title>
+    <link rel="stylesheet" type="text/css" href="/css/stile.css" />
+</head>
+
+<body>
+
+    <div th:if="${libro}">
+
+        <h1 th:text="${libro.titolo}">Titolo del Libro</h1>
+
+        <div>
+            Autore: <span th:text="${libro.autore.nome} + ' ' + ${libro.autore.cognome}">Nome Autore</span>
+        </div>
+
+        <div>
+            Anno: <span th:text="${libro.annoPubblicazione}">1984</span>
+        </div>
+        
+        <hr>
+
+        <h3>Recensioni:</h3>
+        <ul>
+            <li th:each="recensione : ${libro.recensioni}" 
+                th:text="${recensione.titolo} + ' - Voto: ' + ${recensione.voto} + '/5'">
+                Titolo recensione - Voto: 5/5
+            </li>
+        </ul>
+
+    </div>
+
+    <div th:unless="${libro}">
+        <h1>Libro non Trovato</h1>
+    </div>
+
+</body>
+
+</html>
