@@ -12,6 +12,12 @@ import it.uniroma3.siw.service.LibroService;
 public class LibroController {
 	@Autowired LibroService libroService;
 	
+    @GetMapping("/")
+    public String index(Model model) {
+        model.addAttribute("libri", this.libroService.getAllLibri());
+        return "index.html";
+    }
+	
 	@GetMapping("/libro/{id}")
 	public String getLibro(@PathVariable("id") Long id, Model model)
 	{
@@ -19,7 +25,7 @@ public class LibroController {
 		return "libro.html";
 	}
 	
-	@GetMapping("/libro")
+	@GetMapping("/libri")
 	public String showLibri(Model model)
 	{
 		model.addAttribute("libri", this.libroService.getAllLibri());

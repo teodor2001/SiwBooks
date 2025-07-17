@@ -13,7 +13,7 @@ public class Libro {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long Id;
+	private Long id;
 	
 	@NotBlank(message="Il libro deve avere un titolo")
 	private String titolo;
@@ -47,11 +47,11 @@ public class Libro {
 	
 	
 	public Long getId() {
-		return Id;
+		return id;
 	}
 
 	public void setId(Long id) {
-		Id = id;
+		id = id;
 	}
 
 	public String getTitolo() {
@@ -96,26 +96,20 @@ public class Libro {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(Id, annoPubblicazione, autore, nomeImmagine, recensioni, titolo);
+	    return Objects.hash(titolo, annoPubblicazione);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Libro other = (Libro) obj;
-		return Objects.equals(Id, other.Id) && Objects.equals(annoPubblicazione, other.annoPubblicazione)
-				&& Objects.equals(autore, other.autore) && Objects.equals(nomeImmagine, other.nomeImmagine)
-				&& Objects.equals(recensioni, other.recensioni) && Objects.equals(titolo, other.titolo);
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Libro other = (Libro) obj;
+	    return Objects.equals(titolo, other.titolo) && Objects.equals(annoPubblicazione, other.annoPubblicazione);
 	}
 
 	@Override
 	public String toString() {
-		return "Libro [Id=" + Id + ", titolo=" + titolo + ", annoPubblicazione=" + annoPubblicazione + ", autore="
+		return "Libro [Id=" + id + ", titolo=" + titolo + ", annoPubblicazione=" + annoPubblicazione + ", autore="
 				+ autore + ", nomeImmagine=" + nomeImmagine + ", recensioni=" + recensioni + "]";
 	}
 	

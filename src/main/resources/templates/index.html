@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiwBooks</title>
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/logo.png" alt="Logo SiwBooks" class="navbar-logo">
+                <span>SiwBooks</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="btn btn-scarlet"><i class="bi bi-box-arrow-in-right me-2"></i>Login</a>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+                    <span class="navbar-text me-3">
+                        <i class="bi bi-person-fill"></i>
+                        <strong th:if="${#authentication.principal.getClass().getName().contains('OAuth2User')}"
+                                th:text="${#authentication.principal.attributes['given_name'] ?: #authentication.principal.username}"></strong>
+                        <strong th:if="${!#authentication.principal.getClass().getName().contains('OAuth2User')}"
+                                th:text="${#authentication.principal.username}"></strong>
+                    </span>
+                    <a href="/admin/formNewLibro" class="btn btn-outline-warning me-2" sec:authorize="hasAuthority('ADMIN')"><i class="bi bi-plus-circle me-2"></i>Aggiungi Libro</a>
+                    <a href="#" class="btn btn-outline-light" onclick="confirmAndLogout(event)"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="content-wrapper">
+        <div class="container mt-4">
+            <h1 class="mb-4 text-center">Catalogo</h1>
+            <div class="alert alert-info" th:if="${libri.isEmpty()}">
+                Nessun libro disponibile al momento.
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:unless="${libri.isEmpty()}">
+                <div class="col" th:each="libro : ${libri}">
+                    <div class="card h-100 book-card">
+                        <a th:href="@{'/libro/' + ${libro.id}}" class="card-link">
+                            <img th:src="@{'/images/placeholder.png'}" class="card-img-top" alt="Copertina libro">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${libro.titolo}">Titolo del Libro</h5>
+                                <p class="card-text" th:text="${libro.autore.nome} + ' ' + ${libro.autore.cognome}">Nome Autore</p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted" th:text="'Pubblicato nel ' + ${libro.annoPubblicazione}">Anno</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto">
+        <div class="container">
+            <p>&copy; 2025 SiwBooks. Progetto di Teodor.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript">
+        function confirmAndLogout(event) {
+            event.preventDefault();
+            if (confirm('Sei sicuro di voler uscire?')) {
+                document.getElementById('logoutForm').submit();
+            }
+        }
+    </script>
+</body>
+</html>

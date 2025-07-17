@@ -9,7 +9,7 @@ public class Recensione {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	public Long id;
+	private Long id;
 	
 	@NotBlank(message = "La recensione deve avere un titolo")
 	public String titolo;

@@ -1,0 +1,116 @@
+:root {
+    --scarlatto: #ff2400;
+    --sfondo: #212529;
+    --tema-scuro: #121212;
+    --chiaro1: #f8f9fa;
+    --chiaro2: #adb5bd;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    background-color: var(--tema-scuro);
+    color: var(--chiaro1);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex-grow: 1;
+}
+
+.navbar {
+    background-color: var(--sfondo);
+    border-bottom: 1px solid #333;
+}
+
+.navbar-brand {
+    color: var(--scarlatto) !important;
+    font-weight: bold;
+}
+
+.navbar-logo {
+    height: 40px;
+    margin-right: 10px;
+    transition: height 0.3s ease;
+}
+
+.form-logo {
+    max-width: 180px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.book-card {
+    background-color: var(--sfondo);
+    border: 1px solid #444;
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+}
+
+.book-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+
+.book-card .card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.book-card .card-title {
+    color: var(--scarlatto);
+}
+
+.card-footer, .text-muted {
+    color: var(--chiaro2) !important;
+}
+
+.btn-scarlet {
+    background-color: var(--scarlatto);
+    border-color: var(--scarlatto);
+    color: #fff;
+    font-weight: bold;
+}
+
+.btn-scarlet:hover {
+    background-color: #d61f00;
+    border-color: #c41c00;
+    color: #fff;
+}
+
+footer {
+    background-color: var(--sfondo);
+    color: var(--chiaro1);
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.navbar-logo {
+    height: 40px;
+    width: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.form-logo {
+    max-width: 120px;
+    width: 100%;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid var(--sfondo);
+    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
+
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 35px;
+    }
+}

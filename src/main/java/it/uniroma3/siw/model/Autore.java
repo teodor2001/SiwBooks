@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 public class Autore {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	public Long id;
+	private Long id;
 	
 	@NotBlank(message="L'autore deve avere un nome")
 	private String nome;
