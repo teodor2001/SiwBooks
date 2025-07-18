@@ -27,4 +27,9 @@ public class AutoreService {
     public void save(Autore autore) {
         autoreRepository.save(autore);
     }
+    
+    @Transactional
+    public void deleteById(Long id) {
+        autoreRepository.deleteById(id);
+    }
 }

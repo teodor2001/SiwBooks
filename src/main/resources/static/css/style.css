@@ -62,7 +62,8 @@ body {
 }
 
 .book-card .card-title {
-    color: var(--scarlatto);
+    color: var(--chiaro1);
+    font-weight: bold;
 }
 
 .card-footer, .text-muted {
@@ -81,7 +82,6 @@ body {
     border-color: #c41c00;
     color: #fff;
 }
-
 footer {
     background-color: var(--sfondo);
     color: var(--chiaro1);
@@ -107,6 +107,45 @@ footer {
     margin-bottom: 1rem;
     border: 3px solid var(--sfondo);
     box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
+
+.dashboard-card {
+    text-decoration: none;
+    color: var(--chiaro1);
+    background-color: var(--sfondo);
+    border: 1px solid #444;
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+    display: block;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    color: var(--chiaro1);
+}
+
+.dashboard-card .card-body i {
+    font-size: 3rem;
+}
+
+.gallery-main-image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: .75rem;
+    border: 1px solid #444;
+}
+.gallery-thumbnails img {
+    width: 100px;
+    height: 120px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: .5rem;
+    transition: border-color .2s ease-in-out;
+}
+.gallery-thumbnails img:hover, .gallery-thumbnails img.active {
+    border-color: var(--scarlatto);
 }
 
 @media (max-width: 768px) {

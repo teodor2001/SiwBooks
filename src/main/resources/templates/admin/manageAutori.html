@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione Autori - SiwBooks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin/dashboard"><i class="bi bi-shield-lock-fill me-2"></i>Pannello Admin</a>
+            <a th:href="@{/admin/dashboard}" class="btn btn-outline-light"><i class="bi bi-arrow-left-circle me-1"></i>Torna alla Dashboard</a>
+        </div>
+    </nav>
+    <main class="content-wrapper">
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Gestione Autori</h1>
+                <a th:href="@{/admin/formNewAutore}" class="btn btn-lg btn-scarlet">
+                    <i class="bi bi-person-plus-fill me-2"></i>Aggiungi Nuovo Autore
+                </a>
+            </div>
+            <div th:if="${autori.isEmpty()}">
+                <div class="alert alert-info">Nessun autore presente nel sistema.</div>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:unless="${autori.isEmpty()}">
+                <div class="col" th:each="autore : ${autori}">
+                    <div class="card h-100 book-card">
+                        <img th:src="@{'/images/uploads/autori/' + ${autore.nomeImmagine}}" onerror="this.src='/images/placeholder.png';" class="card-img-top" alt="Foto autore" style="height: 300px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${autore.nome} + ' ' + ${autore.cognome}"></h5>
+                            <p class="card-text text-white-50" th:text="${autore.nazionalita}"></p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a th:href="@{'/admin/formEditAutore/' + ${autore.id}}" class="btn btn-sm btn-primary w-50 me-1"><i class="bi bi-pencil-fill"></i> Modifica</a>
+                            <a th:href="@{'/admin/delete/autore/' + ${autore.id}}" class="btn btn-sm btn-danger w-50 ms-1" onclick="return confirm('Sei sicuro di voler eliminare questo autore?');"><i class="bi bi-trash3-fill"></i> Elimina</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

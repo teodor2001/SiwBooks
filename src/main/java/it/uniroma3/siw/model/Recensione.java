@@ -23,11 +23,9 @@ public class Recensione {
 	@Column(columnDefinition = "TEXT")
 	public String testo;
     
-    @NotNull(message="La recensone deve avere un libro per cui è stata scritta")
 	@ManyToOne
 	private Libro libro;
     
-    @NotNull(message="La recensione deve essere stata scritta da un utente")
 	@ManyToOne
 	private User utente;
     

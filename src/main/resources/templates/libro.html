@@ -2,42 +2,125 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${libro} ? ${libro.titolo} : 'Libro non trovato'">Dettaglio Libro</title>
+    <title th:text="${libro != null} ? ${libro.titolo} + ' - SiwBooks' : 'Libro non Trovato'"></title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" type="text/css" href="/css/style.css" />
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark">
-        </nav>
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/logo.png" alt="Logo SiwBooks" class="navbar-logo">
+                <span>SiwBooks</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="btn btn-scarlet"><i class="bi bi-box-arrow-in-right me-2"></i>Login</a>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+                    <span class="navbar-text me-3">
+                        <i class="bi bi-person-fill"></i>
+                        <strong th:if="${#authentication.principal.getClass().getName().contains('OAuth2User')}"
+                                th:text="${#authentication.principal.attributes['given_name'] ?: #authentication.principal.username}"></strong>
+                        <strong th:if="${!#authentication.principal.getClass().getName().contains('OAuth2User')}"
+                                th:text="${#authentication.principal.username}"></strong>
+                    </span>
+                    <a href="#" class="btn btn-outline-light" onclick="confirmAndLogout(event)"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <main class="content-wrapper">
-        <div class="container mt-4">
-            <div th:if="${libro}">
-                <h1 th:text="${libro.titolo}">Titolo del Libro</h1>
-                <div>Autore: <span th:text="${libro.autore.nome} + ' ' + ${libro.autore.cognome}">Nome Autore</span></div>
-                <div>Anno: <span th:text="${libro.annoPubblicazione}">1984</span></div>
-                <hr>
-                <h3>Recensioni:</h3>
-                <ul>
-                    <li th:each="recensione : ${libro.recensioni}" 
-                        th:text="${recensione.titolo} + ' - Voto: ' + ${recensione.voto} + '/5'">
-                        Recensione
-                    </li>
-                </ul>
+        <div class="container mt-5">
+            <div th:if="${libro == null}" class="alert alert-danger text-center">
+                <h2>Libro non trovato</h2>
+                <a href="/" class="btn btn-primary mt-2">Torna al Catalogo</a>
             </div>
-            <div th:unless="${libro}">
-                <h1>Libro non Trovato</h1>
+
+            <div th:if="${libro != null}">
+                <div class="row g-5">
+                    <div class="col-md-5">
+                        <img id="mainImage" th:src="@{'/images/' + ${libro.getCopertina()}}" class="gallery-main-image mb-3">
+                        <div class="d-flex flex-wrap gap-2 gallery-thumbnails" th:if="${libro.nomiImmagini.size() > 1}">
+                            <img th:each="immagine, iterStat : ${libro.nomiImmagini}" 
+                                 th:src="@{'/images/uploads/libri/' + ${immagine}}"
+                                 th:classappend="${iterStat.first} ? 'active'"
+                                 th:onclick="'changeImage(this)'">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <h1 class="display-4" th:text="${libro.titolo}"></h1>
+                        <h4 class="text-white-50 mb-3">di <span class="link-light" th:text="${libro.autore.nome} + ' ' + ${libro.autore.cognome}"></span></h4>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            <div style="color: #ffc107;" th:with="rating=${libro.getAverageRating()}">
+                                <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                   th:classappend="${rating >= i} ? 'bi-star-fill' : (${rating > i-1} ? 'bi-star-half' : 'bi-star')"></i>
+                            </div>
+                            <a href="#recensioni" class="text-white-50 ms-2" th:text="${libro.getNumberOfReviews()} + ' recensioni'"></a>
+                        </div>
+                        
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item bg-transparent text-white border-secondary"><strong>Anno Pubblicazione:</strong> <span th:text="${libro.annoPubblicazione}"></span></li>
+                            <li class="list-group-item bg-transparent text-white border-secondary"><strong>Autore:</strong> <span th:text="${libro.autore.nome} + ' ' + ${libro.autore.cognome}"></span></li>
+                            <li class="list-group-item bg-transparent text-white border-secondary"><strong>Nazionalità Autore:</strong> <span th:text="${libro.autore.nazionalita}"></span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="my-5 border-secondary">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 id="recensioni">Recensioni</h2>
+                            <a th:if="${!hasReviewed}" th:href="@{/recensione/add/{id}(id=${libro.id})}" class="btn btn-scarlet" sec:authorize="isAuthenticated()">
+                                <i class="bi bi-pencil-square me-2"></i>Scrivi una recensione
+                            </a>
+                        </div>
+                        <div th:if="${libro.recensioni.isEmpty()}">
+                            <p class="text-white-50">Questo libro non ha ancora nessuna recensione.</p>
+                        </div>
+                        <div class="list-group" th:unless="${libro.recensioni.isEmpty()}">
+                            <div th:each="recensione : ${libro.recensioni}" class="list-group-item list-group-item-action bg-dark text-white border-secondary mb-3 rounded">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1" th:text="${recensione.titolo}"></h5>
+                                    <div style="color: #ffc107;"><i th:each="i : ${#numbers.sequence(1, 5)}" th:classappend="${recensione.voto >= i} ? 'bi-star-fill' : 'bi-star'"></i></div>
+                                </div>
+                                <p class="mb-1" th:text="${recensione.testo}"></p>
+                                <small class="text-white-50" th:text="'Scritta da ' + ${recensione.utente.nome}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <footer class="mt-auto">
-        <div class="container">
-            <p>&copy; 2025 SiwBooks. Progetto di Teodor.</p>
+    <footer class="mt-auto py-3">
+        <div class="container text-center">
+             <p class="mb-0">&copy; 2025 SiwBooks. Progetto di Teodor.</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function changeImage(thumbnail) {
+            document.getElementById('mainImage').src = thumbnail.src;
+            document.querySelectorAll('.gallery-thumbnails img').forEach(img => img.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
+        function confirmAndLogout(event) {
+            event.preventDefault();
+            if (confirm('Sei sicuro di voler uscire?')) {
+                document.getElementById('logoutForm').submit();
+            }
+        }
+    </script>
 </body>
 </html>

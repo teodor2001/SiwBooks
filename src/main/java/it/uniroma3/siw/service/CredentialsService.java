@@ -39,11 +39,10 @@ public class CredentialsService implements UserDetailsService {
         return credentialsRepository.findByUsername(username).orElse(null);
     }
 
-    @Override // Implement the required method for UserDetailsService
+    @Override 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Credentials credentials = credentialsRepository.findByUsername(username)
                                     .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
         return new org.springframework.security.core.userdetails.User(
             credentials.getUsername(),
             credentials.getPassword(),

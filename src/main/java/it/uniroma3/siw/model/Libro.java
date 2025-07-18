@@ -21,10 +21,11 @@ public class Libro {
 	@NotNull(message="Il libro deve avere un anno di pubblicazione")
 	private Integer annoPubblicazione;
 	
-	@NotBlank(message="Il libro deve avere un'immagine associata")
-	private String nomeImmagine;
+	@ElementCollection
+	@CollectionTable(name = "libro_immagini", joinColumns = @JoinColumn(name = "libro_id"))
+	@Column(name = "nome_immagine")
+	private List<String> nomiImmagini = new ArrayList<>();
 	
-	@NotNull(message="Il libro deve avere un autore")
 	@ManyToOne
 	private Autore autore;
 	
@@ -37,11 +38,10 @@ public class Libro {
 		
 	}
 	
-	public Libro(String titolo, Integer annoPubblicazione, Autore autore, String nomeImmagine) {
+	public Libro(String titolo, Integer annoPubblicazione, Autore autore) {
 		this.titolo = titolo;
 		this.annoPubblicazione = annoPubblicazione;
 		this.autore = autore;
-		this.nomeImmagine = nomeImmagine;
 	}
 	
 	
@@ -78,12 +78,12 @@ public class Libro {
 		this.autore = autore;
 	}
 
-	public String getNomeImmagine() {
-		return nomeImmagine;
+	public List<String> getNomiImmagini() {
+		return nomiImmagini;
 	}
 
-	public void setNomeImmagine(String nomeImmagine) {
-		this.nomeImmagine = nomeImmagine;
+	public void setNomiImmagini(List<String> nomiImmagini) {
+		this.nomiImmagini = nomiImmagini;
 	}
 
 	public List<Recensione> getRecensioni() {
@@ -106,14 +106,32 @@ public class Libro {
 	    Libro other = (Libro) obj;
 	    return Objects.equals(titolo, other.titolo) && Objects.equals(annoPubblicazione, other.annoPubblicazione);
 	}
-
 	@Override
 	public String toString() {
 		return "Libro [Id=" + id + ", titolo=" + titolo + ", annoPubblicazione=" + annoPubblicazione + ", autore="
-				+ autore + ", nomeImmagine=" + nomeImmagine + ", recensioni=" + recensioni + "]";
+				+ autore + ", nomiImmagini=" + nomiImmagini + ", recensioni=" + recensioni + "]";
 	}
 	
-	
+    public double getAverageRating() {
+        if (recensioni == null || recensioni.isEmpty()) {
+            return 0.0;
+        }
+        double sum = 0;
+        for (Recensione r : recensioni) {
+            sum += r.getVoto();
+        }
+        return sum / recensioni.size();
+    }
+    
+    public int getNumberOfReviews() {
+        return (recensioni != null) ? recensioni.size() : 0;
+    }
+    public String getCopertina() {
+        if (this.nomiImmagini == null || this.nomiImmagini.isEmpty()) {
+            return "placeholder.png"; // Ritorna un placeholder se non ci sono immagini
+        }
+        return "uploads/libri/" + this.nomiImmagini.get(0);
+    }
 	
 
 }
