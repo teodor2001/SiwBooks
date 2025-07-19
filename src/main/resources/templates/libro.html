@@ -79,7 +79,10 @@
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h2 id="recensioni">Recensioni</h2>
-                            <a th:if="${!hasReviewed}" th:href="@{/recensione/add/{id}(id=${libro.id})}" class="btn btn-scarlet" sec:authorize="isAuthenticated()"><i class="bi bi-pencil-square me-2"></i>Scrivi una recensione</a>
+							<a th:if="${!hasReviewed}" th:href="@{/recensione/add/{id}(id=${libro.id})}" class="btn btn-scarlet" 
+							   sec:authorize="isAuthenticated() and !hasAuthority('ADMIN')">
+							    <i class="bi bi-pencil-square me-2"></i>Scrivi una recensione
+							</a>
                         </div>
                         <div th:if="${libro.recensioni.isEmpty()}"><p class="text-white-50">Questo libro non ha ancora nessuna recensione.</p></div>
                         <div class="list-group" th:unless="${libro.recensioni.isEmpty()}">
