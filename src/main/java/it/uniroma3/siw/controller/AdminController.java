@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import it.uniroma3.siw.model.Autore;
 import it.uniroma3.siw.model.Libro;
@@ -222,8 +223,15 @@ public class AdminController {
 
 
     @GetMapping("/delete/autore/{id}")
-    public String deleteAutore(@PathVariable("id") Long id) {
-        this.autoreService.deleteById(id);
+    public String deleteAutore(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        Autore autore = this.autoreService.findById(id);
+        if (this.libroService.hasBooks(autore)) {
+            redirectAttributes.addFlashAttribute("error", "Impossibile eliminare l'autore '" + autore.getNome() + " " + autore.getCognome() + "' perché ha ancora dei libri nel catalogo.");
+        } else {
+            this.autoreService.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "Autore eliminato correttamente.");
+        }
+        
         return "redirect:/admin/manage/autori";
     }
     
