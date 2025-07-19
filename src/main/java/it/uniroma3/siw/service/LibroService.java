@@ -33,9 +33,4 @@ public class LibroService {
     public void deleteById(Long id) {
         libroRepository.deleteById(id);
     }
-
-    @Transactional
-    public boolean existsByTitoloAndAutore(String titolo, Autore autore) {
-        return libroRepository.existsByTitoloAndAutore(titolo, autore);
-    }
 }

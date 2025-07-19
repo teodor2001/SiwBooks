@@ -6,7 +6,5 @@ import it.uniroma3.siw.model.Autore;
 import it.uniroma3.siw.model.Libro;
 
 public interface LibroRepository extends CrudRepository<Libro, Long> {
-	
-    public boolean existsByTitoloAndAutore(String titolo, Autore autore);
 
 }

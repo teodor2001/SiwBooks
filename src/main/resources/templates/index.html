@@ -46,8 +46,8 @@
                 <div class="col" th:each="libro : ${libri}">
                     <div class="card h-100 book-card">
                         <a th:href="@{'/libro/' + ${libro.id}}" class="card-link">
-                            <img th:src="@{'/images/' + ${libro.getCopertina()}}"
-                                 class="card-img-top" alt="Copertina libro" style="height: 300px; object-fit: cover;">
+							<img th:src="@{'/images/' + ${libro.getCopertina()}}"
+							     class="card-img-top" alt="Copertina libro">
                             <div class="card-body">
                                 <h5 class="card-title" th:text="${libro.titolo}"></h5>
                                 <div class="d-flex align-items-center mb-2" style="color: #ffc107;">
@@ -59,7 +59,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <small class="text-muted" th:text="${libro.autore.nome} + ' ' + ${libro.autore.cognome}"></small>
+                                <small class="text-muted" th:text="${libro.getAutoriConcatenati()}"></small>
                             </div>
                         </a>
                     </div>

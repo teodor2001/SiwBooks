@@ -1,8 +1,10 @@
 package it.uniroma3.siw.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +24,7 @@ public class User {
     private String cognome;
     
     @OneToMany(mappedBy = "utente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Recensione> recensioni = new ArrayList<>();
+    private Set<Recensione> recensioni = new HashSet<>();
     
     //Costruttore vuoto per JPA
     public User()
@@ -59,14 +61,14 @@ public class User {
 		this.cognome = cognome;
 	}
 
-	public List<Recensione> getRecensioni() {
+	public Set<Recensione> getRecensioni() {
 		return recensioni;
 	}
 
-	public void setRecensioni(List<Recensione> recensioni) {
+	public void setRecensioni(Set<Recensione> recensioni) {
 		this.recensioni = recensioni;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

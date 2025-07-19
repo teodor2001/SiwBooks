@@ -1,6 +1,10 @@
 package it.uniroma3.siw.controller;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,13 +71,15 @@ public class AdminController {
     
     @PostMapping("/libri/new")
     public String addNewLibro(@Valid @ModelAttribute("libro") Libro libro, BindingResult bindingResult,
-                              @RequestParam("autoreId") Long autoreId,
-                              @RequestParam("fileImages") MultipartFile[] multipartFiles, Model model) {
+            				  @RequestParam(name = "autoriIds", required = false) List<Long> autoriIds,
+            				  @RequestParam("fileImages") MultipartFile[] multipartFiles, Model model) {
         
-        if (autoreId != null) {
-            libro.setAutore(this.autoreService.findById(autoreId));
+        if (autoriIds != null && !autoriIds.isEmpty()) {
+            for (Long autoreId : autoriIds) {
+                libro.getAutori().add(this.autoreService.findById(autoreId));
+            }
         } else {
-            bindingResult.rejectValue("autore", "error.autore", "È necessario selezionare un autore.");
+            bindingResult.rejectValue("autori", "error.autori", "È necessario selezionare almeno un autore.");
         }
 
         if (bindingResult.hasErrors()) {
@@ -85,14 +91,12 @@ public class AdminController {
             for (MultipartFile file : multipartFiles) {
                 if (!file.isEmpty()) {
                     String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-                    if (!libro.getNomiImmagini().contains(fileName)) {
-                        libro.getNomiImmagini().add(fileName);
-                        FileUploadUtil.saveFile("src/main/resources/static/images/uploads/libri", fileName, file);
-                    }
+                    libro.getNomiImmagini().add(fileName);
+                    FileUploadUtil.saveFile("src/main/resources/static/images/uploads/libri", fileName, file);
                 }
             }
         } catch (IOException e) {
-            model.addAttribute("uploadError", "Errore durante il salvataggio dell'immagine.");
+            model.addAttribute("uploadError", "Errore upload immagine.");
             model.addAttribute("autori", this.autoreService.findAll());
             return "admin/formNewLibro.html";
         }
@@ -103,10 +107,13 @@ public class AdminController {
 
     
     @PostMapping("/libri/edit/{id}")
-    public String updateLibro(@PathVariable("id") Long id,
-                              @Valid @ModelAttribute("libro") Libro libroFromForm, BindingResult bindingResult,
-                              @RequestParam("autoreId") Long autoreId,
+    public String updateLibro(@PathVariable("id") Long id, @Valid @ModelAttribute("libro") Libro libroFromForm, BindingResult bindingResult,
+                              @RequestParam(name = "autoriIds", required = false) List<Long> autoriIds,
                               @RequestParam("fileImages") MultipartFile[] multipartFiles, Model model) {
+
+        if (autoriIds == null || autoriIds.isEmpty()) {
+            bindingResult.rejectValue("autori", "error.autori", "È necessario selezionare almeno un autore.");
+        }
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("autori", this.autoreService.findAll());
@@ -115,28 +122,28 @@ public class AdminController {
         }
         
         Libro libroDaSalvare = this.libroService.getLibroById(id);
-        
         libroDaSalvare.setTitolo(libroFromForm.getTitolo());
         libroDaSalvare.setAnnoPubblicazione(libroFromForm.getAnnoPubblicazione());
-        libroDaSalvare.setAutore(this.autoreService.findById(autoreId));
+        
+        libroDaSalvare.getAutori().clear();
+        for(Long autoreId : autoriIds) {
+            libroDaSalvare.getAutori().add(this.autoreService.findById(autoreId));
+        }
         
         try {
             for (MultipartFile file : multipartFiles) {
                 if (!file.isEmpty()) {
                     String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-                    if (!libroDaSalvare.getNomiImmagini().contains(fileName)) {
-                        libroDaSalvare.getNomiImmagini().add(fileName);
-                        FileUploadUtil.saveFile("src/main/resources/static/images/uploads/libri", fileName, file);
-                    }
+                    libroDaSalvare.getNomiImmagini().add(fileName);
+                    FileUploadUtil.saveFile("src/main/resources/static/images/uploads/libri", fileName, file);
                 }
             }
         } catch (IOException e) {
-            model.addAttribute("uploadError", "Errore durante il salvataggio dell'immagine.");
+            model.addAttribute("uploadError", "Errore upload immagine.");
             model.addAttribute("autori", this.autoreService.findAll());
             libroFromForm.setId(id);
             return "admin/formEditLibro.html";
         }
-
         this.libroService.save(libroDaSalvare);
         return "redirect:/admin/manage/libri";
     }
@@ -195,6 +202,24 @@ public class AdminController {
         this.autoreService.save(autoreDaSalvare);
         return "redirect:/admin/manage/autori";
     }
+    
+    @PostMapping("/libri/{libroId}/deleteImage")
+    public String deleteLibroImage(@PathVariable("libroId") Long libroId, @RequestParam("imageName") String imageName) {
+        Libro libro = libroService.getLibroById(libroId);
+        if (libro != null && libro.getNomiImmagini().contains(imageName)) {
+            libro.getNomiImmagini().remove(imageName);
+            libroService.save(libro);
+            try {
+                Path imagePath = Paths.get("src/main/resources/static/images/uploads/libri/" + imageName);
+                Files.deleteIfExists(imagePath);
+            } catch (IOException e) {
+                System.err.println("Errore durante l'eliminazione del file: " + imageName);
+                e.printStackTrace();
+            }
+        }
+        return "redirect:/admin/formEditLibro/" + libroId;
+    }
+
 
     @GetMapping("/delete/autore/{id}")
     public String deleteAutore(@PathVariable("id") Long id) {
