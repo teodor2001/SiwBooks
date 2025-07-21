@@ -51,13 +51,6 @@
                     </div>
                     <div class="col-md-7">
                         <h1 class="display-4" th:text="${libro.titolo}"></h1>
-						<h4 class="text-white-50 mb-3">
-						    di
-						    <th:block th:each="autore, iterStat : ${libro.autori}">
-						        <a th:href="@{/autore/{id}(id=${autore.id})}" class="link-light" th:text="${autore.nome} + ' ' + ${autore.cognome}"></a>
-						        <span th:if="!${iterStat.last}">, </span>
-						    </th:block>
-						</h4>
                         <div class="d-flex align-items-center mb-4">
                             <div style="color: #ffc107;" th:with="rating=${libro.getAverageRating()}"><i th:each="i : ${#numbers.sequence(1, 5)}" th:classappend="${rating >= i} ? 'bi-star-fill' : (${rating > i-1} ? 'bi-star-half' : 'bi-star')"></i></div>
                             <a href="#recensioni" class="text-white-50 ms-2" th:text="${libro.getNumberOfReviews()} + ' recensioni'"></a>

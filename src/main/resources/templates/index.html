@@ -39,8 +39,38 @@
     <main class="content-wrapper">
         <div class="container mt-4">
             <h1 class="mb-4 text-center">Catalogo</h1>
+
+            <form th:action="@{/}" method="get" class="mb-4">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-7">
+                        <label for="keywordInput" class="form-label text-light">Cerca per titolo o autore:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="keywordInput" placeholder="Inserisci una keyword..." name="keyword" th:value="${keyword}">
+                            <button class="btn btn-scarlet" type="submit"><i class="bi bi-search"></i> Cerca</button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="annoSelect" class="form-label text-light">Anno di pubblicazione:</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="annoSelect" name="annoPubblicazione" onchange="this.form.submit()">
+                            <option value="">Tutti gli anni</option>
+                            <th:block th:with="currentYear=${T(java.time.Year).now().getValue()}">
+                                <option th:each="year : ${#numbers.sequence(currentYear, 1900, -1)}" 
+                                        th:value="${year}" 
+                                        th:text="${year}" 
+                                        th:selected="${annoPubblicazione != null and annoPubblicazione == year}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <a th:href="@{/}" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+                    </div>
+                </div>
+            </form>
+
             <div class="alert alert-info" th:if="${libri.isEmpty()}">
-                Nessun libro disponibile al momento.
+                Nessun libro disponibile al momento che corrisponda ai criteri di ricerca.
             </div>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" th:unless="${libri.isEmpty()}">
                 <div class="col" th:each="libro : ${libri}">

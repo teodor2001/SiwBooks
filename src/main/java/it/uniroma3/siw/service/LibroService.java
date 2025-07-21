@@ -46,4 +46,26 @@ public class LibroService {
     public boolean hasBooks(Autore autore) {
         return this.libroRepository.countByAutoriContains(autore) > 0;
     }
+    @Transactional
+    public List<Libro> searchByTitolo(String titolo) {
+        return libroRepository.findByTitoloContainingIgnoreCase(titolo);
+    }
+
+    @Transactional
+    public List<Libro> filterByAnnoPubblicazione(Integer anno) {
+        return libroRepository.findByAnnoPubblicazione(anno);
+    }
+
+    @Transactional
+    public List<Libro> searchAndFilterLibri(String keyword, Integer annoPubblicazione) {
+        if (keyword != null && !keyword.isEmpty() && annoPubblicazione != null) {
+            return libroRepository.searchByKeywordAndAnnoPubblicazione(keyword, annoPubblicazione);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            return libroRepository.searchByKeyword(keyword);
+        } else if (annoPubblicazione != null) {
+            return libroRepository.findByAnnoPubblicazione(annoPubblicazione);
+        } else {
+            return (List<Libro>) libroRepository.findAll();
+        }
+    }
 }
