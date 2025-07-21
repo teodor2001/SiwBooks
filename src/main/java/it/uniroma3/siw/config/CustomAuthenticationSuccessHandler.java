@@ -33,31 +33,39 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         
-        String usernameFromAuth = authentication.getName(); 
+        String usernameToUse = authentication.getName();
         
         System.out.println("--- OAuth2 Login Success ---");
-        System.out.println("Authenticated principal name (username): " + usernameFromAuth);
+        System.out.println("Authenticated principal name (raw from authentication.getName()): " + usernameToUse);
 
         if (authentication.getPrincipal() instanceof OAuth2User) {
             OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            String email = oauth2User.getAttribute("email");
             String firstName = oauth2User.getAttribute("given_name");
             String lastName = oauth2User.getAttribute("family_name");
-            if (!credentialsService.existsByUsername(usernameFromAuth)) {
-                System.out.println("Nuovo utente OAuth2 rilevato. Inizio provisioning per: " + usernameFromAuth);
+            
+            if (email != null && !email.isEmpty()) {
+                usernameToUse = email;
+                System.out.println("Using OAuth2 email as username: " + usernameToUse);
+            } else {
+                System.out.println("OAuth2 email not found, falling back to authentication.getName() for username.");
+            }
+            if (!credentialsService.existsByUsername(usernameToUse)) {
+                System.out.println("Nuovo utente OAuth2 rilevato. Inizio provisioning per: " + usernameToUse);
                 
                 User newUser = new User();
                 newUser.setNome(firstName != null ? firstName : "Utente");
                 newUser.setCognome(lastName != null ? lastName : "OAuth2");
                 Credentials newCredentials = new Credentials();
-                newCredentials.setUsername(usernameFromAuth);
+                newCredentials.setUsername(usernameToUse);
                 newCredentials.setPassword("OAUTH2_GENERATED_PASSWORD_" + System.currentTimeMillis()); 
                 newCredentials.setRole(Credentials.DEFAULT_ROLE);
                 newCredentials.setUser(newUser); 
                 
                 credentialsService.saveCredentials(newCredentials);
-                System.out.println("Utente OAuth2 " + usernameFromAuth + " provisionato con successo nel database locale.");
+                System.out.println("Utente OAuth2 " + usernameToUse + " provisionato con successo nel database locale.");
             } else {
-                System.out.println("Utente OAuth2 " + usernameFromAuth + " già esistente nel database locale.");
+                System.out.println("Utente OAuth2 " + usernameToUse + " già esistente nel database locale.");
             }
         }
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority(ADMIN_ROLE))) {

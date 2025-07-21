@@ -2,6 +2,7 @@ package it.uniroma3.siw.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,16 +44,25 @@ public class LibroController {
    	public String getLibro(@PathVariable("id") Long id, Model model) {
    		Libro libro = this.libroService.getLibroById(id);
    		model.addAttribute("libro", libro);
-           Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-           boolean hasReviewed = false;
-           if (authentication != null && authentication.isAuthenticated() && !("anonymousUser").equals(authentication.getPrincipal())) {
-               String username = authentication.getName(); 
-               Credentials credentials = credentialsService.findByUsername(username);
-               if (libro != null && credentials != null && credentials.getUser() != null) {
-                   hasReviewed = recensioneService.hasUserReviewedBook(libro, credentials.getUser());
-               }
-           }
-           model.addAttribute("hasReviewed", hasReviewed);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean hasReviewed = false;
+        
+        if (authentication != null && authentication.isAuthenticated() && !("anonymousUser").equals(authentication.getPrincipal())) {
+            String usernameToLookup = authentication.getName(); 
+            if (authentication.getPrincipal() instanceof OAuth2User) {
+                OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+                String email = oauth2User.getAttribute("email");
+                if (email != null && !email.isEmpty()) {
+                    usernameToLookup = email;
+                }
+            }
+
+            Credentials credentials = credentialsService.findByUsername(usernameToLookup); 
+            if (libro != null && credentials != null && credentials.getUser() != null) {
+                hasReviewed = recensioneService.hasUserReviewedBook(libro, credentials.getUser());
+            }
+        }
+        model.addAttribute("hasReviewed", hasReviewed);
 
    		return "libro.html";
    	}

@@ -70,16 +70,19 @@ public class User {
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		User other = (User) obj;
-		return Objects.equals(cognome, other.cognome) && Objects.equals(nome, other.nome);
-	}
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        User other = (User) obj;
+        return Objects.equals(this.id, other.id);
+    }
 
 	@Override
 	public String toString() {

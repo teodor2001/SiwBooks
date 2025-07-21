@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User; // Importa OAuth2User
 import it.uniroma3.siw.model.Credentials;
 import it.uniroma3.siw.model.Libro;
 import it.uniroma3.siw.model.Recensione;
@@ -32,10 +33,21 @@ public class RecensioneController {
     public String showFormNewRecensione(@PathVariable("libroId") Long libroId, Model model, RedirectAttributes redirectAttributes) {
         Libro libro = this.libroService.getLibroById(libroId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String usernameToLookup = authentication.getName(); 
+        if (authentication.getPrincipal() instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            String email = oauth2User.getAttribute("email");
+            if (email != null && !email.isEmpty()) {
+                usernameToLookup = email;
+            }
+        }
 
-        Credentials credentials = credentialsService.findByUsername(username);
-        
+        Credentials credentials = credentialsService.findByUsername(usernameToLookup);
+        if (credentials == null) {
+            redirectAttributes.addFlashAttribute("error", "Errore: utente non trovato o non autenticato correttamente per la recensione.");
+            return "redirect:/login"; 
+        }
+
         if (recensioneService.hasUserReviewedBook(libro, credentials.getUser())) {
             redirectAttributes.addFlashAttribute("reviewError", "Hai già scritto una recensione per questo libro.");
             return "redirect:/libro/" + libroId;
@@ -51,11 +63,22 @@ public class RecensioneController {
                                  BindingResult bindingResult,
                                  @PathVariable("libroId") Long libroId, Model model, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String usernameToLookup = authentication.getName(); 
+        if (authentication.getPrincipal() instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            String email = oauth2User.getAttribute("email");
+            if (email != null && !email.isEmpty()) {
+                usernameToLookup = email;
+            }
+        }
 
-        Credentials credentials = credentialsService.findByUsername(username);
+        Credentials credentials = credentialsService.findByUsername(usernameToLookup);
         Libro libro = this.libroService.getLibroById(libroId);
-        
+        if (credentials == null) {
+            redirectAttributes.addFlashAttribute("error", "Errore: utente non trovato o non autenticato correttamente per la recensione.");
+            return "redirect:/login";
+        }
+
         if (recensioneService.hasUserReviewedBook(libro, credentials.getUser())) {
             redirectAttributes.addFlashAttribute("reviewError", "Hai già scritto una recensione per questo libro.");
             return "redirect:/libro/" + libroId;
